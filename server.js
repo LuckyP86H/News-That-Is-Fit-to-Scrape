@@ -13,12 +13,9 @@ var Article = require("./models/Article.js");
 var request = require("request");
 var cheerio = require("cheerio");
 
-// If deployed, use the deployed database. Otherwise use the local mongoscraper database
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
-// Set mongoose to leverage built in JavaScript ES6 Promises
-mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URI, {
-  useMongoClient: true
+
+mongoose.connect("mongodb://localhost/mongoscraper", {
+  useNewUrlParser: true
 });
 
 //Define port
@@ -46,8 +43,7 @@ app.engine("handlebars", exphbs({
 app.set("view engine", "handlebars");
 
 // Database configuration with mongoose
-// mongoose.connect("mongodb://heroku_jmv816f9:5j1nd4taq42hi29bfm5hobeujd@ds133192.mlab.com:33192/heroku_jmv816f9");
-mongoose.connect("mongodb://localhost/mongoscraper");
+mongoose.connect("mongodb://localhost/mongoscraper", { useNewUrlParser: true });
 var db = mongoose.connection;
 
 // Show any mongoose errors
@@ -86,7 +82,7 @@ app.get("/saved", function(req, res) {
 // A GET request to scrape the echojs website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
-  request("https://www.nytimes.com/", function(error, response, html) {
+  request("https://www.nytimes.com", function(error, response, html) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(html);
     // Now, we grab every h2 within an article tag, and do the following:
