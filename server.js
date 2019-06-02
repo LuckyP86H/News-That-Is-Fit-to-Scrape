@@ -15,8 +15,7 @@ var cheerio = require("cheerio");
 
 
 mongoose.connect("mongodb://localhost/mongoscraper", {
-  useNewUrlParser: true
-});
+  useNewUrlParser: true});
 
 //Define port
 var port = process.env.PORT || 3000
