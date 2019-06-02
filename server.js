@@ -15,7 +15,8 @@ var cheerio = require("cheerio");
 
 // If deployed, use the deployed database. Otherwise use the local mongoscraper database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
-// Set mongoose to leverage built in JavaScript ES6 Promises
+
+
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URI, {
   useMongoClient: true
@@ -46,7 +47,6 @@ app.engine("handlebars", exphbs({
 app.set("view engine", "handlebars");
 
 // Database configuration with mongoose
-// mongoose.connect("mongodb://heroku_jmv816f9:5j1nd4taq42hi29bfm5hobeujd@ds133192.mlab.com:33192/heroku_jmv816f9");
 mongoose.connect("mongodb://localhost/mongoscraper");
 var db = mongoose.connection;
 
