@@ -1,0 +1,2 @@
+# News-That-Is-Fit-to-Scrape
+WEB APP: VIEW AND LEAVE COMMENTS ON THE NEWS
