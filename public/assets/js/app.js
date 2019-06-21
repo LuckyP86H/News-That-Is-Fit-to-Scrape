@@ -5,7 +5,7 @@ $("#scrape").on("click", function() {
         url: "/scrape",
     }).done(function(data) {
         console.log(data)
-        window.location = "/"
+        // window.location = "/"
     })
 });
 
