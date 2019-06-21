@@ -13,9 +13,12 @@ var Article = require("./models/Article.js");
 var request = require("request");
 var cheerio = require("cheerio");
 
+if(process.env.NODE_ENV === 'production'){
+  mongoose.connect(process.env.MONGODB_URI);
+}else{
+  mongoose.connect("mongodb://localhost/mongoscraper", { useNewUrlParser: true});
+}
 
-mongoose.connect("mongodb://localhost/mongoscraper", {
-  useNewUrlParser: true});
 
 //Define port
 var port = process.env.PORT || 3000

@@ -1,6 +1,6 @@
 // Require mongoose
 var mongoose = require("mongoose");
-var Note = require("./Note");
+// var Note = require("./Note");
 // Create Schema class
 var Schema = mongoose.Schema;
 
@@ -26,8 +26,6 @@ var ArticleSchema = new Schema({
      type: Schema.Types.ObjectId,
      ref: "Note"
   }]
-
-  
 });
 
 // Create the Article model with the ArticleSchema
