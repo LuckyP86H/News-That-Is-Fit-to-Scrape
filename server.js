@@ -16,25 +16,18 @@ var cheerio = require("cheerio");
 if(process.env.NODE_ENV === 'production'){
   mongoose.connect(process.env.MONGODB_URI);
 }else{
-  mongoose.connect("mongodb://localhost/mongoscraper", { useNewUrlParser: true});
+  mongoose.connect("mongodb://localhost:27017/mongoscraper", { useNewUrlParser: true});
 }
-
 
 //Define port
 var port = process.env.PORT || 3000
-
 // Initialize Express
 var app = express();
-
 // Use morgan and body parser with our app
 app.use(logger("dev"));
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-
+app.use(bodyParser.urlencoded({ extended: false }));
 // Make public a static dir
 app.use(express.static(path.join(__dirname, "public")));
-
 // Set Handlebars.
 var exphbs = require("express-handlebars");
 
@@ -49,18 +42,12 @@ mongoose.connect("mongodb://localhost/mongoscraper", { useNewUrlParser: true });
 var db = mongoose.connection;
 
 // Show any mongoose errors
-db.on("error", function(error) {
-  console.log("Mongoose Error: ", error);
-});
-
+db.on("error", function(error) { console.log("Mongoose Error: ", error) });
+  
 // Once logged in to the db through mongoose, log a success message
-db.once("open", function() {
-  console.log("Mongoose connection successful.");
-});
+db.once("open", function() { console.log("Mongoose connection successful.") });
 
 // Routes
-// ======
-
 //GET requests to render Handlebars pages
 app.get("/", function(req, res) {
   Article.find({"saved": false}, function(error, data) {
@@ -82,46 +69,42 @@ app.get("/saved", function(req, res) {
 });
 
 // A GET request to scrape the echojs website
-app.get("/scrape", function(req, res) {
+app.get("/scrape", function(req, response) {
   // First, we grab the body of the html with request
-  request("https://news.ycombinator.com/", function(error, response, html) {
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
-    var $ = cheerio.load(html);
-    // Now, we grab every h2 within an article tag, and do the following:
+  request('https://news.ycombinator.com/', function(err, res, html){
     // Save an empty result object
+    let resultList = []
+    // Error Handling
+    if(err){ console.error(err) }
 
-    var result = {};
-    $(".title").each(function(i, element) {
-      // let test = element.children().text()
-      result.element = element
-      // Add the title and summary of every link, and save them as properties of the result object
-      // result.title = element.text();
-      // result.summary = element.children(".summary").text();
-      // result.link = element.children(".title").children("a").attr("href");
-
-      // Using our Article model, create a new entry
-      // This effectively passes the result object to the entry (and the title and link)
-      var entry = new Article(result);
-
-      // Now, save that entry to the db
-      // entry.save(function(err, doc) {
-      //   // Log any errors
-      //   if (err) {
-      //     console.log(err);
-      //   }
-      //   // Or log the doc
-      //   else {
-      //     console.log(doc);
-      //   }
-      // });
-
-    });
-    console.log(result[0])
-
-        res.json();
-
-  });
-  // Tell the browser that we finished scraping the text
+    let $ = cheerio.load(html)
+    $('.storylink').each(function(element, index){
+      // sets empty object for response
+      let resultItem = {}
+      // title information
+      resultItem.title = $(this).text()
+      // grabbing the url from the element
+      resultItem.link = $(this).attr('href')
+      // adding to the results array
+      resultList.push(resultItem)
+    }) 
+    resultList.forEach(function(r){
+      // inserting new document
+      Article.create(r, function (err, result) {
+        if (err) {
+          // sending information back to front end with any error
+          response.json({
+            data: [],
+            status: err
+          })
+        } 
+      }) 
+    })
+    response.json({
+      data: resultList,
+      status: 'Completed Scrape'
+    })
+  })
 });
 
 // This will get the articles we scraped from the mongoDB
@@ -158,7 +141,6 @@ app.get("/articles/:id", function(req, res) {
   });
 });
 
-
 // Save an article
 app.post("/articles/save/:id", function(req, res) {
       // Use the article id to find and update its saved boolean
@@ -192,7 +174,6 @@ app.post("/articles/delete/:id", function(req, res) {
         }
       });
 });
-
 
 // Create a new note
 app.post("/notes/save/:id", function(req, res) {
